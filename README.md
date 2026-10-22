@@ -27,9 +27,9 @@ Si preferís no publicar tu correo personal, GitHub ofrece una dirección privad
 
 ## Datos de referencia
 
-La información disponible confirma **302 EGM**: **96 operativas**, **22 asignadas** y **184 en stock**. Los 8 FV837E del Pack Ruby en preparación están incluidos dentro de esas 184 unidades. Los 8 upgrades de Casino Club se muestran como historial y no vuelven a contarse como máquinas. Hay además 2 equipos no EGM, presentados por separado.
+La fuente vigente es el libro [Base_Maestra_EGM_Actualizada_2026-09-26.xlsx](data/Base_Maestra_EGM_Actualizada_2026-09-26.xlsx). Reporta **270 EGM conocidas**: **96 operativas**, **22 asignadas a Hotelera Emprender** y **152 en stock**. Hay además **2 equipos no EGM**. El Stock General suma 176 porque incluye las 22 EGM asignadas pendientes de instalación y los 2 equipos no EGM.
 
-No se proporcionó el detalle real por número de serie, modelo, destino o ubicación. Las filas que comienzan con DEMO- son ejemplos de interfaz; no constituyen inventario real. Las filas de la tabla no son la lista completa de 302 equipos. Los formularios y filtros son demostrativos. Los registros agregados y la descarga CSV corresponden solo a las filas de ejemplo de la sesión del navegador y se pierden al recargar.
+Las cifras anteriores de 302 EGM y 184 en stock quedan reemplazadas. Consultá [DATOS_MAESTROS.md](DATOS_MAESTROS.md) para el desglose, las reglas de conteo y las discrepancias del archivo fuente. Las filas DEMO de la web siguen siendo ejemplos, no un padrón serializado de los 270 equipos.
 
 ## Alcance
 
