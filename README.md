@@ -1,36 +1,34 @@
-# Base Maestra EGM · NOVOMATIC Argentina
+# Base Maestra EGM — NOVOMATIC Argentina
 
-Prototipo web local para visualizar una base maestra de equipos EGM. No necesita instalar paquetes ni ejecutar un servidor.
+Aplicación web con inicio de sesión y datos guardados en una base SQLite local.
 
-## Abrir el proyecto
+## Iniciar
 
-1. Abrí esta carpeta en Visual Studio Code.
-2. Abrí index.html en un navegador con doble clic. También podés usar la extensión Live Server de VS Code.
-3. Para ver cambios, guardá los archivos y recargá la página.
+Requiere Node.js 20 o superior.
 
-## Guardar cambios en GitHub
+1. Abrí una terminal en esta carpeta.
+2. Copiá `.env.example` como `.env` y reemplazá `SESSION_SECRET`, `DATABASE_KEY`, `BOOTSTRAP_USERNAME` y `BOOTSTRAP_PASSWORD` por claves y credenciales propias.
+3. Ejecutá `npm install` la primera vez.
+4. Ejecutá `npm start` y abrí http://127.0.0.1:3000.
 
-El remoto origin ya está vinculado a https://github.com/ezequielrodrigo2797-bit/NOVO-ARG. En Visual Studio Code, abrí **Control de código fuente**, revisá los cambios, escribí un mensaje breve (por ejemplo, "Actualizar panel") y elegí **Confirmar**. Después elegí **Sincronizar cambios** o **Publicar rama**. VS Code puede pedirte iniciar sesión en GitHub.
+En el primer inicio, la aplicación crea `storage/maestra.sqlite.enc`, inicializa el usuario definido en `.env` y carga las agrupaciones del Excel. El archivo `.env` y la carpeta `storage/` no se incluyen en Git.
 
-También podés hacerlo desde la terminal de esta carpeta:
+## Acceso inicial
 
-    git add .
-    git commit -m "Describir el cambio"
-    git push
+El usuario inicial se configura con `BOOTSTRAP_USERNAME` y `BOOTSTRAP_PASSWORD` en `.env`. El valor inicial de contraseña se utiliza una sola vez para crear la cuenta; luego se puede quitar del archivo `.env`. La contraseña guardada en la base es un hash Argon2id y el acceso permite cambiarla. La contraseña inicial elegida es débil: cambiala al ingresar y antes de permitir acceso desde otra computadora. El campo `email` existe como opcional para agregar recuperación de cuenta más adelante.
 
-Configuré Git para que el primer push establezca el seguimiento de la rama remota automáticamente. Antes de poder crear el primer commit, Git necesita el nombre y correo del autor. Podés definirlos solo para este proyecto con:
+No publiques `.env`, `storage/` ni copias de la base. El archivo SQLite se cifra con AES-256-GCM mediante una clave de `DATABASE_KEY` separada del código.
 
-    git config user.name "Tu nombre"
-    git config user.email "Tu correo de GitHub"
+## Datos
 
-Si preferís no publicar tu correo personal, GitHub ofrece una dirección privada tipo noreply en la configuración de tu cuenta. No guardes contraseñas, tokens ni claves privadas en los archivos del proyecto.
+El primer inicio importa las 270 EGM conocidas desde `data/maestra.js`, derivadas del libro [Base_Maestra_EGM_Actualizada_2026-09-26.xlsx](data/Base_Maestra_EGM_Actualizada_2026-09-26.xlsx): 96 operativas, 22 asignadas y 152 en stock. Las cantidades siguen agrupadas por cliente, sala, modelo o lote porque el libro no trae números de serie.
 
-## Datos de referencia
+Después de cargar la base, la interfaz lee y modifica los registros guardados en SQLite. Las operaciones de alta, edición y eliminación requieren una sesión autenticada y dejan una entrada en el historial de auditoría. La contraseña nunca se envía a la base en texto plano ni se incluye en el repositorio.
 
-La fuente vigente es el libro [Base_Maestra_EGM_Actualizada_2026-09-26.xlsx](data/Base_Maestra_EGM_Actualizada_2026-09-26.xlsx). Reporta **270 EGM conocidas**: **96 operativas**, **22 asignadas a Hotelera Emprender** y **152 en stock**. Hay además **2 equipos no EGM**. El Stock General suma 176 porque incluye las 22 EGM asignadas pendientes de instalación y los 2 equipos no EGM.
+## Seguridad y despliegue
 
-Las cifras anteriores de 302 EGM y 184 en stock quedan reemplazadas. Consultá [DATOS_MAESTROS.md](DATOS_MAESTROS.md) para el desglose, las reglas de conteo y las discrepancias del archivo fuente. Las filas DEMO de la web siguen siendo ejemplos, no un padrón serializado de los 270 equipos.
+La aplicación está preparada para ejecutarse localmente en un solo proceso. Las cookies son `HttpOnly`, `SameSite=Strict` y, en producción, `Secure`; el servidor escucha en loopback y debe ir detrás de un proxy HTTPS antes de exponerlo en una red.
 
-## Alcance
+El motor SQLite compilado a WebAssembly carga la base en memoria y guarda una copia cifrada después de cada escritura. Esto funciona para el inventario actual y una instancia local. Antes de habilitar varios procesos o usuarios concurrentes en una publicación externa, conviene migrar la capa de persistencia y sesiones a PostgreSQL administrado y mover `SESSION_SECRET` y `DATABASE_KEY` a un gestor de secretos.
 
-Este proyecto no configura base de datos, autenticación, credenciales, sincronización de datos ni publicación del sitio. La interfaz es un prototipo estático que se puede abrir localmente.
+Las 270 EGM, las 22 asignadas, los 20 ingresos de V.I.P. X y el upgrade de 8 FV640C conservan las notas de conciliación de [DATOS_MAESTROS.md](DATOS_MAESTROS.md).

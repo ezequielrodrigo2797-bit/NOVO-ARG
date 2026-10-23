@@ -11,3 +11,7 @@ Desktop.ini
 .env
 .env.*
 !.env.example
+
+# App runtime data
+storage/
+node_modules/
