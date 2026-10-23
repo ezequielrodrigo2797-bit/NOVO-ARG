@@ -55,7 +55,7 @@ function requireAuth(req, res, next) {
 function validateMachine(input) {
   const allowedTypes = ['installation', 'assignment', 'stock', 'non_egm'];
   const statusesByType = {
-    installation: ['Operativa'],
+    installation: ['Operativa', 'Inoperativa'],
     assignment: ['Asignado / pendiente de instalación'],
     stock: ['Stock sin destino', 'Stock / preparación', 'Nuevo ingreso a stock'],
     non_egm: ['Stock sin destino']
@@ -70,7 +70,19 @@ function validateMachine(input) {
   if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 10000) throw appError(400, 'La cantidad debe ser un entero entre 1 y 10000.');
   if (!allowedStatuses.includes(status)) throw appError(400, 'Elegí un estado válido.');
   const text = key => String(input[key] || '').trim().slice(0, key === 'notes' ? 2000 : 180);
-  const details = { notes: text('notes'), game: text('game'), signage: text('signage'), category: text('category') };
+  const linked = ['Sí', 'No'].includes(String(input.linked || '')) ? String(input.linked) : '';
+  const details = {
+    notes: text('notes'),
+    game: text('game'),
+    signage: text('signage'),
+    category: text('category'),
+    package: text('package'),
+    islands: text('islands'),
+    date: text('date'),
+    linked,
+    condition: text('condition'),
+    destination: text('destination')
+  };
   return {
     recordType,
     client: text('client'),
@@ -214,11 +226,36 @@ async function main() {
 
   app.get('/api/maestra', requireAuth, (req, res) => res.json(buildMaestra(db)));
 
+  app.get('/api/records/:id/status-history', requireAuth, (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
+      const [record] = rows(db, 'SELECT id FROM machines WHERE id = ?', [id]);
+      if (!record) throw appError(404, 'No se encontró el registro.');
+      const history = rows(db, `
+        SELECT history.id,
+          history.from_record_type AS fromRecordType,
+          history.to_record_type AS toRecordType,
+          history.from_status AS fromStatus,
+          history.to_status AS toStatus,
+          history.changed_at AS changedAt,
+          users.username AS username
+        FROM machine_status_history AS history
+        LEFT JOIN users ON users.id = history.changed_by
+        WHERE history.machine_id = ?
+        ORDER BY history.id DESC
+      `, [id]);
+      res.json({ history });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.post('/api/records', requireCsrf, (req, res, next) => {
     try {
       const record = validateMachine(req.body);
       db.run('INSERT INTO machines (record_type, client, location, province, model, quantity, status, details_json, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [record.recordType, record.client, record.location, record.province, record.model, record.quantity, record.status, JSON.stringify(record.details), req.session.userId, req.session.userId]);
       const [created] = rows(db, 'SELECT last_insert_rowid() AS id');
+      db.run('INSERT INTO machine_status_history (machine_id, from_record_type, to_record_type, from_status, to_status, changed_by) VALUES (?, NULL, ?, NULL, ?, ?)', [created.id, record.recordType, record.status, req.session.userId]);
       audit(db, req.session.userId, 'machine_created', created.id);
       save();
       res.status(201).json({ id: created.id });
@@ -231,11 +268,13 @@ async function main() {
     try {
       const id = Number(req.params.id);
       const record = validateMachine(req.body);
-      const existing = rows(db, 'SELECT id FROM machines WHERE id = ?', [id])[0];
+      const existing = rows(db, 'SELECT id, record_type, status, details_json FROM machines WHERE id = ?', [id])[0];
       if (!existing) throw appError(404, 'No se encontró el registro.');
-      const [current] = rows(db, 'SELECT details_json FROM machines WHERE id = ?', [id]);
-      const details = { ...JSON.parse(current.details_json || '{}'), ...record.details };
+      const details = { ...JSON.parse(existing.details_json || '{}'), ...record.details };
       db.run('UPDATE machines SET record_type = ?, client = ?, location = ?, province = ?, model = ?, quantity = ?, status = ?, details_json = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [record.recordType, record.client, record.location, record.province, record.model, record.quantity, record.status, JSON.stringify(details), req.session.userId, id]);
+      if (existing.record_type !== record.recordType || existing.status !== record.status) {
+        db.run('INSERT INTO machine_status_history (machine_id, from_record_type, to_record_type, from_status, to_status, changed_by) VALUES (?, ?, ?, ?, ?, ?)', [id, existing.record_type, record.recordType, existing.status, record.status, req.session.userId]);
+      }
       audit(db, req.session.userId, 'machine_updated', id);
       save();
       res.json({ id });

@@ -152,10 +152,21 @@ async function initializeDatabase({ passwordHash, databaseKey }) {
       entity_id INTEGER,
       occurred_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
+    CREATE TABLE IF NOT EXISTS machine_status_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      machine_id INTEGER NOT NULL REFERENCES machines(id) ON DELETE CASCADE,
+      from_record_type TEXT,
+      to_record_type TEXT NOT NULL,
+      from_status TEXT,
+      to_status TEXT NOT NULL,
+      changed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      changed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
     CREATE INDEX IF NOT EXISTS idx_machines_record_type ON machines(record_type);
     CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+    CREATE INDEX IF NOT EXISTS idx_machine_status_history_machine ON machine_status_history(machine_id, id DESC);
   `);
-  db.run('INSERT OR IGNORE INTO schema_migrations (version) VALUES (1)');
+  db.run('INSERT OR IGNORE INTO schema_migrations (version) VALUES (1), (2)');
 
   const [users] = rows(db, 'SELECT COUNT(*) AS count FROM users');
   if (users.count === 0) {
@@ -178,6 +189,22 @@ async function initializeDatabase({ passwordHash, databaseKey }) {
     source.stockEgm.forEach(item => add('stock', item.sourceId, item, item.destination || 'Stock', item.destination || 'Stock', '', ['model', 'quantity', 'status', 'sourceId']));
     source.nonEgm.forEach(item => add('non_egm', item.sourceId, item, 'NOVOMATIC Argentina', 'Stock', '', ['model', 'quantity', 'status', 'sourceId']));
     source.upgrades.forEach(item => db.run('INSERT INTO upgrades (source_key, details_json) VALUES (?, ?)', [item.id, JSON.stringify(item)]));
+  }
+
+  db.run(`
+    INSERT INTO machine_status_history (machine_id, from_record_type, to_record_type, from_status, to_status, changed_by, changed_at)
+    SELECT machines.id, NULL, machines.record_type, NULL, machines.status, NULL, machines.updated_at
+    FROM machines
+    WHERE NOT EXISTS (SELECT 1 FROM machine_status_history WHERE machine_id = machines.id)
+  `);
+  const [statusHistoryMigration] = rows(db, 'SELECT version FROM schema_migrations WHERE version = 3');
+  if (!statusHistoryMigration) {
+    db.run(`
+      UPDATE machine_status_history
+      SET changed_at = (SELECT machines.updated_at FROM machines WHERE machines.id = machine_status_history.machine_id)
+      WHERE from_record_type IS NULL AND from_status IS NULL AND changed_by IS NULL
+    `);
+    db.run('INSERT INTO schema_migrations (version) VALUES (3)');
   }
 
   db.run('DELETE FROM sessions WHERE expires_at <= ?', [Date.now()]);
