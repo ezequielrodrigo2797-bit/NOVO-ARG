@@ -189,7 +189,19 @@ function configureData(source) {
   totals.stockGeneral = totals.stockEgm + totals.assigned + totals.nonEgm;
   machineGroups = [
     ...installations.map(row => ({ ...row, origin: 'Instalaciones', detail: [row.package, row.signage, row.game, row.linked === 'Sí' ? 'Linkeado' : '', row.islands ? `${row.islands} isla(s)` : '', row.date ? `Instalación ${formatDateDisplay(row.date)}` : '', row.notes].filter(Boolean).join(' · ') })),
-    ...assignments.map(row => ({ ...row, origin: 'Pipeline', detail: [row.game, row.signage, row.notes].filter(Boolean).join(' · ') })),
+    ...assignments.map(row => ({
+      ...row,
+      origin: 'Pipeline',
+      detail: [
+        row.game,
+        row.signage,
+        row.linked === 'Sí' ? 'Isla linkeada' : '',
+        row.islands ? `${row.islands} ${row.islands === 1 ? 'isla' : 'islas'}` : '',
+        row.jackpotControllers ? `${row.jackpotControllers} ${row.jackpotControllers === 1 ? 'Jackpot Controller' : 'Jackpot Controllers'}` : '',
+        row.units?.length ? `${row.units.length} series con RENO ID` : '',
+        row.notes
+      ].filter(Boolean).join(' · ')
+    })),
     ...stock.map(row => ({ ...row, client: row.destination || 'Sin destino', location: row.destination || 'Stock', origin: row.sourceId, detail: [row.condition, row.game, row.signage, row.notes].filter(Boolean).join(' · ') }))
   ];
 }
@@ -271,6 +283,23 @@ function filtered(rows, term, keys) {
   return rows.filter(row => !query || keys.some(key => normalize(row[key]).includes(query)));
 }
 
+function machineSearchText(row) {
+  const ordinaryFields = Object.entries(row)
+    .filter(([, value]) => !Array.isArray(value))
+    .map(([, value]) => value)
+    .join(' ');
+  const unitFields = Array.isArray(row.units)
+    ? row.units.map(unit => [unit.serialNumber, unit.renoId, unit.game].filter(Boolean).join(' ')).join(' ')
+    : '';
+  return `${ordinaryFields} ${unitFields}`;
+}
+
+function machineUnitDetails(row) {
+  return Array.isArray(row.units)
+    ? row.units.map(unit => `${unit.serialNumber} · RENO ${unit.renoId} · ${unit.game}`).join(' | ')
+    : '';
+}
+
 function machineRowsForView(view) {
   return machineGroups.flatMap(row => {
     if (row.recordType !== 'stock' || row.status !== 'Stock / preparación') return [row];
@@ -303,7 +332,7 @@ function renderMachines() {
     if (view === 'stock-preparation') return row.recordType === 'stock' && row.status === 'Stock / preparación';
     return row.recordType === view;
   };
-  const rows = sorted(machineRowsForView(view).filter(row => matchesView(row) && (!status || row.status === status) && (!normalize(term) || normalize(Object.values(row).join(' ')).includes(normalize(term)))), sort);
+  const rows = sorted(machineRowsForView(view).filter(row => matchesView(row) && (!status || row.status === status) && (!normalize(term) || normalize(machineSearchText(row)).includes(normalize(term)))), sort);
   const tbody = $('#machineRows');
   if (rows.length) tbody.innerHTML = rows.map(machineRow).join('');
   else setEmpty(tbody, 6, 'No hay registros que coincidan con la búsqueda.');
@@ -370,7 +399,20 @@ function exportRows(view) {
     if (viewFilter === 'stock-preparation') return row.recordType === 'stock' && row.status === 'Stock / preparación';
     return row.recordType === viewFilter;
   };
-  return sorted(machineRowsForView(viewFilter).filter(row => matchesView(row) && (!status || row.status === status) && (!normalize(term) || normalize(Object.values(row).join(' ')).includes(normalize(term)))), sort).map(row => ({ Cliente: row.client, Ubicacion: row.location, Modelo: row.model, Cantidad: row.quantity, Estado: row.status, Origen: row.origin || row.sourceId, Detalle: row.detail }));
+  return sorted(machineRowsForView(viewFilter).filter(row => matchesView(row) && (!status || row.status === status) && (!normalize(term) || normalize(machineSearchText(row)).includes(normalize(term)))), sort).map(row => ({
+    Cliente: row.client,
+    Ubicacion: row.location,
+    Modelo: row.model,
+    Cantidad: row.quantity,
+    Estado: row.status,
+    Origen: row.origin || row.sourceId,
+    Detalle: row.detail,
+    'Número(s) de serie': Array.isArray(row.units) ? row.units.map(unit => unit.serialNumber).join('; ') : '',
+    'RENO ID / juego por serie': machineUnitDetails(row),
+    Islas: row.islands ?? '',
+    Linkeada: row.linked ?? '',
+    'Jackpot Controller(s)': row.jackpotControllers ?? ''
+  }));
 }
 
 function exportCSV(view) {
@@ -434,17 +476,23 @@ function updateStatusOptions(form, selected = '') {
 
 function openRecordDetail(record) {
   const typeLabels = { installation: 'Instalación', assignment: 'Asignación', stock: 'Stock', non_egm: 'Equipo no EGM' };
+  const units = Array.isArray(record.units) ? record.units : [];
+  const unitDetails = units.map(unit => `${unit.serialNumber} · RENO ${unit.renoId} · ${unit.game}`).join('\n');
   const fields = [
     ['Tipo de registro', typeLabels[record.recordType] || record.recordType],
     ['Cliente / destino', record.client], ['Sala / ubicación', record.location], ['Provincia', record.province],
     ['Lote / origen', record.sourceId], ['Modelo / equipo', record.model], ['Categoría', record.category],
     ['Cantidad', record.quantity == null ? '' : fmt.format(record.quantity)], ['Estado', record.status],
     ['Paquete', record.package], ['Condición', record.condition], ['Destino', record.destination],
-    ['Islas', record.islands], ['Juego', record.game], ['Cartelería', record.signage],
+    ['Islas', record.islands], ['Jackpot Controllers', record.jackpotControllers], ['Juego', record.game], ['Cartelería', record.signage],
     ['Linkeada', record.linked], ['Fecha', formatDateDisplay(record.date)], ['Clasificación de origen', record.sourceClass],
+    ['Detalle por máquina · serie · RENO ID · juego', unitDetails],
     ['Observaciones', record.notes], ['Fila en la fuente', record.sourceRow]
   ].filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== '');
-  $('#installationDetailContent').innerHTML = fields.map(([label, value]) => `<div class="detail-item"><span>${escapeHTML(label)}</span><strong>${display(value)}</strong></div>`).join('');
+  $('#installationDetailContent').innerHTML = fields.map(([label, value]) => {
+    const wide = label.startsWith('Detalle por máquina') ? ' detail-item-wide' : '';
+    return `<div class="detail-item${wide}"><span>${escapeHTML(label)}</span><strong>${display(value)}</strong></div>`;
+  }).join('');
   $('#installationDetailTitle').textContent = `${record.client || record.sourceId || 'Registro'} · ${record.model}`;
   $('#editInstallationFromDetail').dataset.editId = record.id;
   $('#openInstallationHistory').dataset.historyId = record.id;

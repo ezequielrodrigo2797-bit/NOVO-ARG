@@ -2,7 +2,10 @@ module.exports = {
   source: {
     file: 'Base_Maestra_EGM_Actualizada_2026-09-26.xlsx',
     workbookDate: '2026-09-26',
-    note: 'Las cantidades están agrupadas por cliente, sala y modelo. No hay números de serie.'
+    supplementalFile: 'DetalleMaquinas_HoteleraEmprender.xlsx',
+    updatedWorkbook: 'outputs/base-maestra-egm-20261024/Base_Maestra_EGM_Actualizada_2026-10-24.xlsx',
+    reviewedOn: '2026-10-24',
+    note: 'Las cantidades conservan el corte del libro principal del 26/09/2026. La revisión del 24/10/2026 incorpora series, RENO ID, juegos, islas linkeadas, controllers y Villa Mercedes para Hotelera Emprender.'
   },
   installations: [
     {sourceRow:2, client:'Casino Club', location:'Casino Club Santa Rosa', province:'La Pampa', model:'FV330C', quantity:4, package:'Diamond', signage:'Radiant 4P0D', islands:1, game:'Xtension Link: Evolution', linked:'Sí', status:'Operativa', date:'', notes:''},
@@ -14,15 +17,40 @@ module.exports = {
     {sourceRow:8, client:'Codere', location:'San Martín', province:'Buenos Aires', model:'FV330C', quantity:4, package:'Diamond', signage:'Radiant 4P0D', islands:1, game:'Xtension Link: Evolution', linked:'Sí', status:'Operativa', date:'2026-08-20', notes:''},
     {sourceRow:9, client:'Trilenium', location:'Tigre', province:'Buenos Aires', model:'FV330C', quantity:10, package:'Diamond', signage:'6P0D + 4P0D', islands:2, game:'Xtension Link: Evolution', linked:'Sí', status:'Operativa', date:'', notes:''},
     {sourceRow:10, client:'Casino Magic', location:'Neuquén', province:'Neuquén', model:'FV330C', quantity:6, package:'Diamond', signage:'Radiant 6P0D', islands:1, game:'Xtension Link: Evolution', linked:'Sí', status:'Operativa', date:'', notes:''},
-    {sourceRow:11, client:'Grupo AGG', location:'Florencio Varela', province:'Buenos Aires', model:'FV838 CB', quantity:8, package:'Sin paquete', signage:'Sin cartel', islands:'', game:'Globe Link: Extension', linked:'Sí', status:'Operativa', date:'', notes:''},
-    {sourceRow:12, client:'Grupo AGG', location:'Wilde', province:'Buenos Aires', model:'FV838 CB', quantity:8, package:'Sin paquete', signage:'Sin cartel', islands:'', game:'Globe Link: Extension', linked:'Sí', status:'Operativa', date:'', notes:''},
-    {sourceRow:13, client:'Casino Buenos Aires', location:'Puerto Madero / CABA', province:'CABA', model:'FV838 CB', quantity:8, package:'Sin paquete', signage:'Sin cartel', islands:2, game:'Globe Link: Extension', linked:'Sí', status:'Operativa', date:'', notes:'2 islas de 4; un solo progresivo'},
+    {sourceRow:11, client:'Grupo AGG', location:'Florencio Varela', province:'Buenos Aires', model:'FV838 CB', quantity:8, package:'Sin paquete', signage:'Fazi', islands:'', game:'Globe Link: Extension', linked:'Sí', status:'Operativa', date:'', notes:'Cartelería Fazi confirmada por el usuario; la planilla indica “Sin cartel”.'},
+    {sourceRow:12, client:'Grupo AGG', location:'Wilde', province:'Buenos Aires', model:'FV838 CB', quantity:8, package:'Sin paquete', signage:'Fazi', islands:'', game:'Globe Link: Extension', linked:'Sí', status:'Operativa', date:'', notes:'Cartelería Fazi confirmada por el usuario; la planilla indica “Sin cartel”.'},
+    {sourceRow:13, client:'Casino Buenos Aires', location:'Puerto Madero / CABA', province:'CABA', model:'FV838 CB', quantity:8, package:'Sin paquete', signage:'Fazi', islands:2, game:'Globe Link: Extension', linked:'Sí', status:'Operativa', date:'', notes:'2 islas de 4; un solo progresivo. Cartelería Fazi confirmada por el usuario; la planilla indica “Sin cartel”.'},
     {sourceRow:14, client:'Casino Buenos Aires', location:'Puerto Madero / CABA', province:'CABA', model:'FV330C', quantity:4, package:'Diamond', signage:'Radiant 4P0D', islands:1, game:'Xtension Link: Evolution', linked:'Sí', status:'Operativa', date:'2026-09-17', notes:''}
   ],
   assignments: [
-    {sourceId:'STK-001', client:'Hotelera Emprender S.A.', model:'FV834 FF2', quantity:8, game:'Impera Link Series 1', signage:'', linked:'', location:'TBD', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Sala y fecha TBD'},
-    {sourceId:'STK-002', client:'Hotelera Emprender S.A.', model:'FV640C FF2', quantity:8, game:'Ultra Boost o Cash Connection Edition 3', signage:'', linked:'', location:'TBD', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Juego por confirmar; sala y fecha TBD'},
-    {sourceId:'STK-003', client:'Hotelera Emprender S.A.', model:'FV838 CB', quantity:6, game:'Xtension Link Ultimate', signage:'Fazi', linked:'Sí', location:'TBD', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Fecha de instalación TBD'}
+    {sourceId:'STK-001', client:'Hotelera Emprender S.A.', model:'FV834 FF2', quantity:8, game:'Impera Link Series 1', signage:'', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Villa Mercedes indicada por el usuario; 1 isla linkeada con 1 Jackpot Controller; fecha de instalación TBD.', units:[
+      {serialNumber:'749357', renoId:'11900', game:'Impera Link Series 1'},
+      {serialNumber:'749360', renoId:'11900', game:'Impera Link Series 1'},
+      {serialNumber:'760966', renoId:'11900', game:'Impera Link Series 1'},
+      {serialNumber:'760969', renoId:'11900', game:'Impera Link Series 1'},
+      {serialNumber:'749356', renoId:'11900', game:'Impera Link Series 1'},
+      {serialNumber:'760970', renoId:'11900', game:'Impera Link Series 1'},
+      {serialNumber:'760968', renoId:'11900', game:'Impera Link Series 1'},
+      {serialNumber:'760965', renoId:'11900', game:'Impera Link Series 1'}
+    ]},
+    {sourceId:'STK-002', client:'Hotelera Emprender S.A.', model:'FV640C FF2', quantity:8, game:'Ultraboost Tiger Storm / Ultraboost Grand Eagle', signage:'', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Villa Mercedes indicada por el usuario; 1 isla linkeada con 1 Jackpot Controller; 4 equipos con RENO ID 100935 y 4 con RENO ID 100955. Fecha de instalación TBD.', units:[
+      {serialNumber:'781430', renoId:'100935', game:'Ultraboost Tiger Storm'},
+      {serialNumber:'781434', renoId:'100955', game:'Ultraboost Grand Eagle'},
+      {serialNumber:'801949', renoId:'100935', game:'Ultraboost Tiger Storm'},
+      {serialNumber:'781431', renoId:'100955', game:'Ultraboost Grand Eagle'},
+      {serialNumber:'781429', renoId:'100955', game:'Ultraboost Grand Eagle'},
+      {serialNumber:'804798', renoId:'100935', game:'Ultraboost Tiger Storm'},
+      {serialNumber:'781433', renoId:'100935', game:'Ultraboost Tiger Storm'},
+      {serialNumber:'781432', renoId:'100955', game:'Ultraboost Grand Eagle'}
+    ]},
+    {sourceId:'STK-003', client:'Hotelera Emprender S.A.', model:'FV838 CB', quantity:6, game:'Xtension Link Ultimate', signage:'Fazi', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Villa Mercedes indicada por el usuario; 1 isla linkeada con 1 Jackpot Controller y cartelería Fazi; fecha de instalación TBD.', units:[
+      {serialNumber:'787134', renoId:'110895', game:'Xtension Link Ultimate'},
+      {serialNumber:'822969', renoId:'110895', game:'Xtension Link Ultimate'},
+      {serialNumber:'822967', renoId:'110895', game:'Xtension Link Ultimate'},
+      {serialNumber:'787137', renoId:'110895', game:'Xtension Link Ultimate'},
+      {serialNumber:'822974', renoId:'110895', game:'Xtension Link Ultimate'},
+      {serialNumber:'822976', renoId:'110895', game:'Xtension Link Ultimate'}
+    ]}
   ],
   stockEgm: [
     {sourceId:'STK-004', model:'FV834', quantity:8, status:'Stock sin destino', condition:'', destination:'', game:'', signage:'', linked:'', notes:'Bank of 8', sourceClass:'EGM'},

@@ -78,6 +78,8 @@ body.dark-mode .cell-note{color:#a0aec1}
 .detail-item{min-width:0;padding:12px;border:1px solid #e7ebf1;border-radius:7px;background:#fafbfd}
 .detail-item span{display:block;margin-bottom:5px;color:#8792a3;font-size:10px}
 .detail-item strong{display:block;color:#354257;font-size:12px;font-weight:600;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+.detail-item-wide{grid-column:1/-1}
+.detail-item-wide strong{white-space:pre-line;font-weight:500}
 body.dark-mode .detail-item{border-color:#29384d;background:#1b293d}
 body.dark-mode .detail-item span{color:#a0aec1}
 body.dark-mode .detail-item strong{color:#e0e8f3}

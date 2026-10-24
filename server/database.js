@@ -207,6 +207,37 @@ async function initializeDatabase({ passwordHash, databaseKey }) {
     db.run('INSERT INTO schema_migrations (version) VALUES (3)');
   }
 
+  const [maestraDetailsMigration] = rows(db, 'SELECT version FROM schema_migrations WHERE version = 4');
+  if (!maestraDetailsMigration) {
+    const source = require('../data/maestra');
+    const syncDetails = (sourceKey, recordType, item, fields) => {
+      const [existing] = rows(db, 'SELECT id, details_json FROM machines WHERE source_key = ? AND record_type = ?', [sourceKey, recordType]);
+      if (!existing) return;
+      const details = JSON.parse(existing.details_json || '{}');
+      for (const field of fields) {
+        if (Object.prototype.hasOwnProperty.call(item, field)) details[field] = item[field];
+      }
+      db.run('UPDATE machines SET details_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [JSON.stringify(details), existing.id]);
+    };
+    source.installations
+      .filter(item => item.model === 'FV838 CB')
+      .forEach(item => syncDetails(`INST-${item.sourceRow}`, 'installation', item, ['signage', 'notes']));
+    source.assignments.forEach(item => syncDetails(item.sourceId, 'assignment', item, ['game', 'signage', 'linked', 'islands', 'jackpotControllers', 'notes', 'units']));
+    db.run('INSERT INTO schema_migrations (version) VALUES (4)');
+  }
+
+  const [hoteleraLocationMigration] = rows(db, 'SELECT version FROM schema_migrations WHERE version = 5');
+  if (!hoteleraLocationMigration) {
+    const source = require('../data/maestra');
+    source.assignments.forEach(item => {
+      const [existing] = rows(db, 'SELECT id FROM machines WHERE source_key = ? AND record_type = ?', [item.sourceId, 'assignment']);
+      if (existing && item.location) {
+        db.run('UPDATE machines SET location = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [item.location, existing.id]);
+      }
+    });
+    db.run('INSERT INTO schema_migrations (version) VALUES (5)');
+  }
+
   db.run('DELETE FROM sessions WHERE expires_at <= ?', [Date.now()]);
   saveDatabase(db, databaseKey);
   return { db, save: () => saveDatabase(db, databaseKey), sessionStore: createSessionStore(require('express-session'), db, () => saveDatabase(db, databaseKey)) };

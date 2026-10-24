@@ -21,7 +21,9 @@ No publiques `.env`, `storage/` ni copias de la base. El archivo SQLite se cifra
 
 ## Datos
 
-El primer inicio importa las 270 EGM conocidas desde `data/maestra.js`, derivadas del libro [Base_Maestra_EGM_Actualizada_2026-09-26.xlsx](data/Base_Maestra_EGM_Actualizada_2026-09-26.xlsx): 96 operativas, 22 asignadas y 152 en stock. Las cantidades siguen agrupadas por cliente, sala, modelo o lote porque el libro no trae números de serie.
+El primer inicio importa las 270 EGM conocidas desde `data/maestra.js`, basadas en el libro [Base_Maestra_EGM_Actualizada_2026-09-26.xlsx](data/Base_Maestra_EGM_Actualizada_2026-09-26.xlsx): 96 operativas, 22 asignadas y 152 en stock. La planilla revisada [Base_Maestra_EGM_Actualizada_2026-10-24.xlsx](outputs/base-maestra-egm-20261024/Base_Maestra_EGM_Actualizada_2026-10-24.xlsx) conserva ese corte y agrega el detalle serializado de Hotelera. El Excel complementario [DetalleMaquinas_HoteleraEmprender.xlsx](data/DetalleMaquinas_HoteleraEmprender.xlsx) es la fuente de series y RENO ID de sus 22 máquinas. El resto de instalaciones y stock continúa agrupado porque las fuentes no traen un padrón individual completo.
+
+Las tres asignaciones de Hotelera corresponden a Villa Mercedes: son tres islas linkeadas, cada una con un Jackpot Controller. Las FV838 usan cartelería Fazi, confirmada por el usuario. La fuente registra las 22 EGM como asignadas y pendientes de instalación; la fecha sigue pendiente. Si ya existe una base local, la migración de datos se aplica al próximo inicio de la aplicación.
 
 Después de cargar la base, la interfaz lee y modifica los registros guardados en SQLite. Las operaciones de alta, edición y eliminación requieren una sesión autenticada y dejan una entrada en el historial de auditoría. La contraseña nunca se envía a la base en texto plano ni se incluye en el repositorio.
 
