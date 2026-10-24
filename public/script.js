@@ -183,9 +183,9 @@ function configureData(source) {
   };
   totals.stockUnassignedOrPreparation = sum(stock.filter(row => row.status === 'Stock sin destino' || row.status === 'Stock / preparación'));
   totals.newStock = sum(stock.filter(row => row.status === 'Nuevo ingreso a stock'));
-  totals.packRubyPreparation = sum(stock, 'preparationQuantity');
-  totals.packRubyNoDestination = sum(stock, 'noDestinationQuantity');
-  totals.packRubyTotal = totals.packRubyPreparation + totals.packRubyNoDestination;
+  totals.fv837ePreparation = sum(stock, 'preparationQuantity');
+  totals.fv837eNoDestination = sum(stock, 'noDestinationQuantity');
+  totals.fv837eTotal = sum(stock.filter(row => row.model === 'FV837E'));
   totals.stockGeneral = totals.stockEgm + totals.assigned + totals.nonEgm;
   machineGroups = [
     ...installations.map(row => ({ ...row, origin: 'Instalaciones', detail: [row.package, row.signage, row.game, row.linked === 'Sí' ? 'Linkeado' : '', row.islands ? `${row.islands} isla(s)` : '', row.date ? `Instalación ${formatDateDisplay(row.date)}` : '', row.notes].filter(Boolean).join(' · ') })),
@@ -296,7 +296,7 @@ function machineSearchText(row) {
 
 function machineUnitDetails(row) {
   return Array.isArray(row.units)
-    ? row.units.map(unit => `${unit.serialNumber} · RENO ${unit.renoId} · ${unit.game}`).join(' | ')
+    ? row.units.map(unit => [unit.serialNumber, unit.renoId ? `RENO ${unit.renoId}` : '', unit.game].filter(Boolean).join(' · ')).join(' | ')
     : '';
 }
 
@@ -408,7 +408,7 @@ function exportRows(view) {
     Origen: row.origin || row.sourceId,
     Detalle: row.detail,
     'Número(s) de serie': Array.isArray(row.units) ? row.units.map(unit => unit.serialNumber).join('; ') : '',
-    'RENO ID / juego por serie': machineUnitDetails(row),
+    'Detalle por serie / RENO ID / juego': machineUnitDetails(row),
     Islas: row.islands ?? '',
     Linkeada: row.linked ?? '',
     'Jackpot Controller(s)': row.jackpotControllers ?? ''
@@ -477,7 +477,7 @@ function updateStatusOptions(form, selected = '') {
 function openRecordDetail(record) {
   const typeLabels = { installation: 'Instalación', assignment: 'Asignación', stock: 'Stock', non_egm: 'Equipo no EGM' };
   const units = Array.isArray(record.units) ? record.units : [];
-  const unitDetails = units.map(unit => `${unit.serialNumber} · RENO ${unit.renoId} · ${unit.game}`).join('\n');
+  const unitDetails = units.map(unit => [unit.serialNumber, unit.renoId ? `RENO ${unit.renoId}` : '', unit.game].filter(Boolean).join(' · ')).join('\n');
   const fields = [
     ['Tipo de registro', typeLabels[record.recordType] || record.recordType],
     ['Cliente / destino', record.client], ['Sala / ubicación', record.location], ['Provincia', record.province],
@@ -486,11 +486,11 @@ function openRecordDetail(record) {
     ['Paquete', record.package], ['Condición', record.condition], ['Destino', record.destination],
     ['Islas', record.islands], ['Jackpot Controllers', record.jackpotControllers], ['Juego', record.game], ['Cartelería', record.signage],
     ['Linkeada', record.linked], ['Fecha', formatDateDisplay(record.date)], ['Clasificación de origen', record.sourceClass],
-    ['Detalle por máquina · serie · RENO ID · juego', unitDetails],
+    ['Detalle por máquina', unitDetails],
     ['Observaciones', record.notes], ['Fila en la fuente', record.sourceRow]
   ].filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== '');
   $('#installationDetailContent').innerHTML = fields.map(([label, value]) => {
-    const wide = label.startsWith('Detalle por máquina') ? ' detail-item-wide' : '';
+    const wide = label === 'Detalle por máquina' ? ' detail-item-wide' : '';
     return `<div class="detail-item${wide}"><span>${escapeHTML(label)}</span><strong>${display(value)}</strong></div>`;
   }).join('');
   $('#installationDetailTitle').textContent = `${record.client || record.sourceId || 'Registro'} · ${record.model}`;

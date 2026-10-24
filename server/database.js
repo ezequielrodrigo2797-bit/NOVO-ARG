@@ -238,6 +238,44 @@ async function initializeDatabase({ passwordHash, databaseKey }) {
     db.run('INSERT INTO schema_migrations (version) VALUES (5)');
   }
 
+  const [fv837eDetailMigration] = rows(db, 'SELECT version FROM schema_migrations WHERE version = 6');
+  if (!fv837eDetailMigration) {
+    const source = require('../data/maestra');
+    for (const item of source.stockEgm.filter(row => ['STK-005', 'STK-010', 'STK-011'].includes(row.sourceId))) {
+      const [existing] = rows(db, 'SELECT id, details_json FROM machines WHERE source_key = ? AND record_type = ?', [item.sourceId, 'stock']);
+      const details = Object.fromEntries(Object.entries(item).filter(([field]) => !['model', 'quantity', 'status', 'sourceId'].includes(field)));
+      if (existing) {
+        db.run(
+          'UPDATE machines SET client = ?, location = ?, province = ?, model = ?, quantity = ?, status = ?, details_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+          [item.destination || 'Stock', item.destination || 'Stock', '', item.model, item.quantity, item.status, JSON.stringify(details), existing.id]
+        );
+      } else {
+        db.run(
+          'INSERT INTO machines (record_type, source_key, client, location, province, model, quantity, status, details_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          ['stock', item.sourceId, item.destination || 'Stock', item.destination || 'Stock', '', item.model, item.quantity, item.status, JSON.stringify(details)]
+        );
+      }
+    }
+
+    for (const item of source.assignments) {
+      const [existing] = rows(db, 'SELECT id, details_json FROM machines WHERE source_key = ? AND record_type = ?', [item.sourceId, 'assignment']);
+      if (!existing) continue;
+      const details = JSON.parse(existing.details_json || '{}');
+      details.notes = item.notes;
+      db.run('UPDATE machines SET location = ?, details_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [item.location || '', JSON.stringify(details), existing.id]);
+    }
+
+    db.run(`
+      INSERT INTO machine_status_history (machine_id, from_record_type, to_record_type, from_status, to_status, changed_by, changed_at)
+      SELECT machines.id, NULL, machines.record_type, NULL, machines.status, NULL, machines.updated_at
+      FROM machines
+      WHERE machines.source_key IN ('STK-010', 'STK-011')
+        AND machines.record_type = 'stock'
+        AND NOT EXISTS (SELECT 1 FROM machine_status_history WHERE machine_id = machines.id)
+    `);
+    db.run('INSERT INTO schema_migrations (version) VALUES (6)');
+  }
+
   db.run('DELETE FROM sessions WHERE expires_at <= ?', [Date.now()]);
   saveDatabase(db, databaseKey);
   return { db, save: () => saveDatabase(db, databaseKey), sessionStore: createSessionStore(require('express-session'), db, () => saveDatabase(db, databaseKey)) };

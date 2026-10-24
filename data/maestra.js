@@ -5,7 +5,7 @@ module.exports = {
     supplementalFile: 'DetalleMaquinas_HoteleraEmprender.xlsx',
     updatedWorkbook: 'outputs/base-maestra-egm-20261024/Base_Maestra_EGM_Actualizada_2026-10-24.xlsx',
     reviewedOn: '2026-10-24',
-    note: 'Las cantidades conservan el corte del libro principal del 26/09/2026. La revisión del 24/10/2026 incorpora series, RENO ID, juegos, islas linkeadas, controllers y Villa Mercedes para Hotelera Emprender.'
+    note: 'Las cantidades conservan el corte del libro principal del 26/09/2026. La revisión del 24/10/2026 incorpora detalle serializado de Hotelera Emprender y 24 FV837E organizadas en tres islas para Epic Casino, Golden Palace San Luis y Flamingo.'
   },
   installations: [
     {sourceRow:2, client:'Casino Club', location:'Casino Club Santa Rosa', province:'La Pampa', model:'FV330C', quantity:4, package:'Diamond', signage:'Radiant 4P0D', islands:1, game:'Xtension Link: Evolution', linked:'Sí', status:'Operativa', date:'', notes:''},
@@ -23,7 +23,7 @@ module.exports = {
     {sourceRow:14, client:'Casino Buenos Aires', location:'Puerto Madero / CABA', province:'CABA', model:'FV330C', quantity:4, package:'Diamond', signage:'Radiant 4P0D', islands:1, game:'Xtension Link: Evolution', linked:'Sí', status:'Operativa', date:'2026-09-17', notes:''}
   ],
   assignments: [
-    {sourceId:'STK-001', client:'Hotelera Emprender S.A.', model:'FV834 FF2', quantity:8, game:'Impera Link Series 1', signage:'', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Villa Mercedes indicada por el usuario; 1 isla linkeada con 1 Jackpot Controller; fecha de instalación TBD.', units:[
+    {sourceId:'STK-001', client:'Hotelera Emprender S.A.', model:'FV834 FF2', quantity:8, game:'Impera Link Series 1', signage:'', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Contrato firmado. Estado general de Hotelera: 1 de 3 islas retirada y en poder del cliente; 2 pendientes de retiro del depósito. El modelo de la isla retirada todavía no está identificado. Ninguna está instalada ni operativa. Villa Mercedes; 1 isla linkeada con 1 Jackpot Controller; fecha de instalación TBD.', units:[
       {serialNumber:'749357', renoId:'11900', game:'Impera Link Series 1'},
       {serialNumber:'749360', renoId:'11900', game:'Impera Link Series 1'},
       {serialNumber:'760966', renoId:'11900', game:'Impera Link Series 1'},
@@ -33,7 +33,7 @@ module.exports = {
       {serialNumber:'760968', renoId:'11900', game:'Impera Link Series 1'},
       {serialNumber:'760965', renoId:'11900', game:'Impera Link Series 1'}
     ]},
-    {sourceId:'STK-002', client:'Hotelera Emprender S.A.', model:'FV640C FF2', quantity:8, game:'Ultraboost Tiger Storm / Ultraboost Grand Eagle', signage:'', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Villa Mercedes indicada por el usuario; 1 isla linkeada con 1 Jackpot Controller; 4 equipos con RENO ID 100935 y 4 con RENO ID 100955. Fecha de instalación TBD.', units:[
+    {sourceId:'STK-002', client:'Hotelera Emprender S.A.', model:'FV640C FF2', quantity:8, game:'Ultraboost Tiger Storm / Ultraboost Grand Eagle', signage:'', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Contrato firmado. Estado general de Hotelera: 1 de 3 islas retirada y en poder del cliente; 2 pendientes de retiro del depósito. El modelo de la isla retirada todavía no está identificado. Ninguna está instalada ni operativa. Villa Mercedes; 1 isla linkeada con 1 Jackpot Controller; 4 equipos con RENO ID 100935 y 4 con RENO ID 100955. Fecha de instalación TBD.', units:[
       {serialNumber:'781430', renoId:'100935', game:'Ultraboost Tiger Storm'},
       {serialNumber:'781434', renoId:'100955', game:'Ultraboost Grand Eagle'},
       {serialNumber:'801949', renoId:'100935', game:'Ultraboost Tiger Storm'},
@@ -43,7 +43,7 @@ module.exports = {
       {serialNumber:'781433', renoId:'100935', game:'Ultraboost Tiger Storm'},
       {serialNumber:'781432', renoId:'100955', game:'Ultraboost Grand Eagle'}
     ]},
-    {sourceId:'STK-003', client:'Hotelera Emprender S.A.', model:'FV838 CB', quantity:6, game:'Xtension Link Ultimate', signage:'Fazi', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Villa Mercedes indicada por el usuario; 1 isla linkeada con 1 Jackpot Controller y cartelería Fazi; fecha de instalación TBD.', units:[
+    {sourceId:'STK-003', client:'Hotelera Emprender S.A.', model:'FV838 CB', quantity:6, game:'Xtension Link Ultimate', signage:'Fazi', linked:'Sí', islands:1, jackpotControllers:1, location:'Villa Mercedes', date:'TBD', status:'Asignado / pendiente de instalación', notes:'Contrato firmado. Estado general de Hotelera: 1 de 3 islas retirada y en poder del cliente; 2 pendientes de retiro del depósito. El modelo de la isla retirada todavía no está identificado. Ninguna está instalada ni operativa. Villa Mercedes; 1 isla linkeada con 1 Jackpot Controller, cartelería Fazi; fecha de instalación TBD.', units:[
       {serialNumber:'787134', renoId:'110895', game:'Xtension Link Ultimate'},
       {serialNumber:'822969', renoId:'110895', game:'Xtension Link Ultimate'},
       {serialNumber:'822967', renoId:'110895', game:'Xtension Link Ultimate'},
@@ -54,7 +54,24 @@ module.exports = {
   ],
   stockEgm: [
     {sourceId:'STK-004', model:'FV834', quantity:8, status:'Stock sin destino', condition:'', destination:'', game:'', signage:'', linked:'', notes:'Bank of 8', sourceClass:'EGM'},
-    {sourceId:'STK-005', model:'FV837E', quantity:24, preparationQuantity:8, noDestinationQuantity:16, status:'Stock / preparación', condition:'', destination:'', game:'Xtension Link Evolution o Superia WinWays', signage:'Fazi', linked:'', notes:'Pack Ruby: 8 en preparación y 16 sin destino; configuración final pendiente', sourceClass:'EGM'},
+    {sourceId:'STK-005', model:'FV837E', quantity:8, preparationQuantity:8, noDestinationQuantity:0, status:'Stock / preparación', condition:'', destination:'EPIC CASINO', game:'Xtension Link Evolution', signage:'Fazi · 8 posiciones', linked:'Sí', islands:1, notes:'Isla 1 de 3; 8 FV837E en preparación para EPIC CASINO. No se informó Jackpot Controller.', sourceClass:'EGM', units:[
+      {serialNumber:'10110563', game:'Xtension Link Evolution'}, {serialNumber:'10110564', game:'Xtension Link Evolution'},
+      {serialNumber:'10110565', game:'Xtension Link Evolution'}, {serialNumber:'10110566', game:'Xtension Link Evolution'},
+      {serialNumber:'10110567', game:'Xtension Link Evolution'}, {serialNumber:'10110568', game:'Xtension Link Evolution'},
+      {serialNumber:'10110569', game:'Xtension Link Evolution'}, {serialNumber:'10110570', game:'Xtension Link Evolution'}
+    ]},
+    {sourceId:'STK-010', model:'FV837E', quantity:8, preparationQuantity:8, noDestinationQuantity:0, status:'Stock / preparación', condition:'', destination:'GOLDEN PALACE SAN LUIS', game:'Xtension Link Evolution', signage:'Fazi · 8 posiciones', linked:'Sí', islands:1, notes:'Isla 2 de 3; 8 FV837E en preparación para GOLDEN PALACE SAN LUIS. No se informó Jackpot Controller.', sourceClass:'EGM', units:[
+      {serialNumber:'10110571', game:'Xtension Link Evolution'}, {serialNumber:'10110572', game:'Xtension Link Evolution'},
+      {serialNumber:'10110573', game:'Xtension Link Evolution'}, {serialNumber:'10110574', game:'Xtension Link Evolution'},
+      {serialNumber:'10110575', game:'Xtension Link Evolution'}, {serialNumber:'10110576', game:'Xtension Link Evolution'},
+      {serialNumber:'10110577', game:'Xtension Link Evolution'}, {serialNumber:'10110578', game:'Xtension Link Evolution'}
+    ]},
+    {sourceId:'STK-011', model:'FV837E', quantity:8, preparationQuantity:8, noDestinationQuantity:0, status:'Stock / preparación', condition:'', destination:'FLAMINGO', game:'Xtension Link Evolution', signage:'Fazi · 8 posiciones', linked:'Sí', islands:1, notes:'Isla 3 de 3; 8 FV837E en preparación para FLAMINGO. No se informó Jackpot Controller.', sourceClass:'EGM', units:[
+      {serialNumber:'10110579', game:'Xtension Link Evolution'}, {serialNumber:'10110580', game:'Xtension Link Evolution'},
+      {serialNumber:'10110581', game:'Xtension Link Evolution'}, {serialNumber:'10110582', game:'Xtension Link Evolution'},
+      {serialNumber:'10110583', game:'Xtension Link Evolution'}, {serialNumber:'10110584', game:'Xtension Link Evolution'},
+      {serialNumber:'10110585', game:'Xtension Link Evolution'}, {serialNumber:'10110586', game:'Xtension Link Evolution'}
+    ]},
     {sourceId:'STK-008', model:'V.I.P. X Galaxy 2.65', quantity:20, status:'Nuevo ingreso a stock', condition:'', destination:'', game:'', signage:'', linked:'', notes:'La hoja Stock_General la clasifica como Gaming cabinet; Resumen la cuenta como EGM', sourceClass:'Gaming cabinet'},
     {sourceId:'STK-009', model:'FV610', quantity:100, status:'Nuevo ingreso a stock', condition:'Refurbished', destination:'', game:'', signage:'', linked:'', notes:'', sourceClass:'EGM'}
   ],
