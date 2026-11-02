@@ -52,6 +52,19 @@ function requireAuth(req, res, next) {
   next();
 }
 
+function isGoogleMapsUrl(value) {
+  try {
+    const url = new URL(value);
+    const hostname = url.hostname.toLowerCase();
+    return url.protocol === 'https:' && (
+      hostname === 'google.com' || hostname.endsWith('.google.com') ||
+      hostname === 'maps.app.goo.gl' || (hostname === 'goo.gl' && url.pathname.startsWith('/maps'))
+    );
+  } catch {
+    return false;
+  }
+}
+
 function validateMachine(input) {
   const allowedTypes = ['installation', 'assignment', 'stock', 'non_egm'];
   const statusesByType = {
@@ -69,10 +82,16 @@ function validateMachine(input) {
   if (!model || model.length > 120) throw appError(400, 'El modelo es obligatorio y admite hasta 120 caracteres.');
   if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 10000) throw appError(400, 'La cantidad debe ser un entero entre 1 y 10000.');
   if (!allowedStatuses.includes(status)) throw appError(400, 'Elegí un estado válido.');
-  const text = key => String(input[key] || '').trim().slice(0, key === 'notes' ? 2000 : 180);
+  const text = (key, maxLength = 180) => String(input[key] || '').trim().slice(0, maxLength);
+  const mapsUrl = text('mapsUrl', 2000);
+  if (mapsUrl && !isGoogleMapsUrl(mapsUrl)) throw appError(400, 'Usá un enlace seguro de Google Maps.');
   const linked = ['Sí', 'No'].includes(String(input.linked || '')) ? String(input.linked) : '';
+  const isUpgrade = input.isUpgrade === true || ['true', 'si', 's\u00ed', '1'].includes(String(input.isUpgrade || '').trim().toLocaleLowerCase('es-AR'));
+  const serialNumbers = Array.isArray(input.serialNumbers)
+    ? input.serialNumbers.map(value => String(value || '').trim().slice(0, 120)).filter(Boolean).slice(0, 1000)
+    : [];
   const details = {
-    notes: text('notes'),
+    notes: text('notes', 2000),
     game: text('game'),
     signage: text('signage'),
     category: text('category'),
@@ -80,8 +99,12 @@ function validateMachine(input) {
     islands: text('islands'),
     date: text('date'),
     linked,
+    isUpgrade,
+    serialNumbers,
     condition: text('condition'),
-    destination: text('destination')
+    destination: text('destination'),
+    roomLocation: text('roomLocation', 240),
+    mapsUrl
   };
   return {
     recordType,
