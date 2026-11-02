@@ -13,9 +13,64 @@ Requiere Node.js 20 o superior.
 
 En el primer inicio, la aplicación crea `storage/maestra.sqlite.enc`, inicializa el usuario definido en `.env` y carga las agrupaciones del Excel. El archivo `.env` y la carpeta `storage/` no se incluyen en Git.
 
+## Instalar en otra computadora
+
+### Requisitos
+
+- Git.
+- Node.js 20 o superior y npm. Comprobá las versiones con `node --version` y `npm --version`.
+- Windows solo es necesario para usar el lanzador gráfico `iniciar-novomatic.ps1`. En macOS y Linux, iniciá la aplicación con `npm start`.
+
+### Windows / PowerShell
+
+1. Cloná el repositorio y entrá a la carpeta:
+
+   ```powershell
+   git clone https://github.com/ezequielrodrigo2797-bit/NOVO-ARG.git
+   cd NOVO-ARG
+   ```
+
+2. Instalá las dependencias fijadas en el lockfile:
+
+   ```powershell
+   npm ci
+   ```
+
+3. Creá la configuración local y generá dos claves diferentes:
+
+   ```powershell
+   Copy-Item .env.example .env
+   node -p "require('node:crypto').randomBytes(48).toString('base64url')"
+   node -p "require('node:crypto').randomBytes(32).toString('base64url')"
+   ```
+
+   Editá `.env`: pegá el primer resultado como `SESSION_SECRET` y el segundo como `DATABASE_KEY`. Completá `BOOTSTRAP_USERNAME` y `BOOTSTRAP_PASSWORD` con credenciales propias. El usuario acepta de 3 a 40 letras, números, puntos, guiones o guiones bajos. Elegí una contraseña larga y única.
+
+4. Iniciá la aplicación en primer plano:
+
+   ```powershell
+   npm start
+   ```
+
+   Abrí <http://127.0.0.1:3000>. La primera ejecución crea `storage/maestra.sqlite.enc`, inicializa el usuario administrador y carga los datos maestros. Para detener el servidor, presioná `Ctrl+C` en la terminal.
+
+   Después de completar estos pasos, también podés ejecutar `.\iniciar-novomatic.ps1`: inicia el servidor en segundo plano y abre el navegador. Los logs del lanzador quedan en `storage/launcher-*.log`. Si PowerShell bloquea la ejecución, usá `powershell -ExecutionPolicy Bypass -File .\iniciar-novomatic.ps1`.
+
+### macOS / Linux
+
+Cloná el repositorio, ejecutá `npm ci`, copiá la plantilla con `cp .env.example .env` y editá `.env` con tu editor. Generá las claves con los mismos comandos `node -p` de arriba. Después ejecutá `npm start` y abrí <http://127.0.0.1:3000>.
+
+## Continuar con la base de otra computadora
+
+`.env` y `storage/` están excluidos de Git intencionalmente. Un clon nuevo crea una base nueva con los datos maestros incluidos; no trae altas, ediciones ni eliminaciones locales.
+
+Para continuar con la misma base, copiá `storage/maestra.sqlite.enc` y transferí el valor original de `DATABASE_KEY` por un canal seguro fuera de Git. En la computadora nueva, instalá las dependencias, configurá `.env` con esa misma clave y una `SESSION_SECRET` nueva, y colocá la base en `storage/`. Iniciá la aplicación e ingresá con la cuenta guardada en esa base. No hace falta reemplazar la cuenta con las credenciales `BOOTSTRAP_*`.
+
+**No subas `.env`, `storage/`, la base cifrada ni copias de seguridad a Git.** Si perdés `DATABASE_KEY`, no se puede descifrar la base.
+
 ## Acceso inicial
 
-El usuario inicial se configura con `BOOTSTRAP_USERNAME` y `BOOTSTRAP_PASSWORD` en `.env`. El valor inicial de contraseña se utiliza una sola vez para crear la cuenta; luego se puede quitar del archivo `.env`. La contraseña guardada en la base es un hash Argon2id y el acceso permite cambiarla. La contraseña inicial elegida es débil: cambiala al ingresar y antes de permitir acceso desde otra computadora. El campo `email` existe como opcional para agregar recuperación de cuenta más adelante.
+El usuario inicial se configura con `BOOTSTRAP_USERNAME` y `BOOTSTRAP_PASSWORD` en `.env`. La contraseña se utiliza solo para crear el primer usuario de una base nueva; después se puede retirar del archivo `.env`. La base guarda un hash Argon2id y la contraseña se puede cambiar desde la interfaz. El campo `email` existe como opcional para agregar recuperación de cuenta más adelante.
 
 No publiques `.env`, `storage/` ni copias de la base. El archivo SQLite se cifra con AES-256-GCM mediante una clave de `DATABASE_KEY` separada del código.
 
